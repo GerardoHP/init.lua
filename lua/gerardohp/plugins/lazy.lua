@@ -21,9 +21,42 @@ require("lazy").setup({
       config = function()
         vim.cmd("colorscheme rose-pine")
       end
-    }
+    },
 
+    -- harpoon
+    {
+      "theprimeagen/harpoon"
+    },
+
+    -- undotre
+    {
+      "mbbill/undotree"
+    },
+
+    -- vim fugitive
+    {
+      "tpope/vim-fugitive"
+    },
+
+    -- lsp-zero
+    {
+      'VonHeikemen/lsp-zero.nvim',
+      branch = 'v3.x',
+      dependencies = {
+        -- LSP Support
+        {'neovim/nvim-lspconfig'},             -- Required
+        {'williamboman/mason.nvim'},           -- Optional
+        {'williamboman/mason-lspconfig.nvim'}, -- Optional
+
+        -- Autocompletion
+        {'hrsh7th/nvim-cmp'},     -- Required
+        {'hrsh7th/cmp-nvim-lsp'}, -- Required
+        {'L3MON4D3/LuaSnip'},     -- Required
+      }
+    }
     -- Puedes agregar más fácilmente así:
     -- { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
 
 })
+-- nvim/lua/gerardohp/lazy.lua
+

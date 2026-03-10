@@ -9,4 +9,3 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("gerardohp")
-print("hello")

@@ -1,2 +1,40 @@
 vim.g.mapleader = " "
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- during visual mode move the selected line down
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- during visual mode move the selected line up
+
+vim.keymap.set("n", "J", "mzJ'z")            -- While joining lines keep the cursor on the begining
+vim.keymap.set("n", "<C-d>", "<C-d>zz")      -- While scrolling keep center
+vim.keymap.set("n", "<C-u>", "<C-u>zz")      -- While scrolling keep center
+vim.keymap.set("n", "n", "nzzzv")            -- Keep the cursor in the middle while searching
+vim.keymap.set("n", "N", "Nzzzv")            -- Keep the cursor in the middle while searching
+
+vim.keymap.set("x", "<leader>p", "\"_dP")    -- when pasting a yanke avoid losing the yanked one
+vim.keymap.set("n", "<leader>d", "\"_d")     -- when deleting a yank avoid losing the yanked one
+vim.keymap.set("v", "<leader>d", "\"_d")     -- when deleting a yanke avoid losing the yanked one
+
+-- when yanking add to clipboard
+vim.keymap.set("n", "<leader>y", "\"*y")
+vim.keymap.set("v", "<leader>y", "\"*y")
+vim.keymap.set("n", "<leader>Y", "\"*Y")
+
+-- when yanking add to clipboard
+vim.keymap.set("n", "<leader>p", "\"*p")
+vim.keymap.set("v", "<leader>p", "\"*p")
+vim.keymap.set("n", "<leader>P", "\"*P")
+
+vim.keymap.set("i", "<C-c>", "<Esc>") -- escape insert mode with Ctrl+c
+
+vim.keymap.set("n", "Q", "<nop>")
+vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
+vim.keymap.set("n", "<M-h>", "<cmd>silent !tmux-sessionizer -s 0 --vsplit<CR>")
+vim.keymap.set("n", "<M-H>", "<cmd>silent !tmux neww tmux-sessionizer -s 0<CR>")
+
+vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
+vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
+vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
+vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
+
+vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]]) -- the current word will be replaced
+vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true }) -- make current file executable
