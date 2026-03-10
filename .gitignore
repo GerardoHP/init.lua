@@ -1,0 +1,20 @@
+
+# Ignore swap, backup, and undo files
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+*.backup
+
+# Ignore compiled or temporary files
+.cache/
+session.vim
+*.log
+undodir/
+
+# Lazy.nvim plugin lockfile (Optional: read below)
+lazy-lock.json
+
+# Neovim internal directories
+.weave/
