@@ -1,3 +1,4 @@
-require("gerardohp.remap")
 require("gerardohp.set")
-require("gerardohp.plugins.lazy")
+require("gerardohp.remap")
+require("gerardohp.lazy_init")
+
