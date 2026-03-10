@@ -1,26 +1,10 @@
 -- lua/gerardohp/lazy/colors.lua
 
 function ColorMyPencils(color)
-    color = color or "rose-pine-moon"
-    local status_ok, _ = pcall(vim.cmd.colorscheme, color)
-    if not status_ok then
-        return
-    end
+    color = color or "kanagawa"
+    -- color = color or "rose-pine-moon"
+    vim.cmd("colorscheme "..color)
 
-    -- Main editor transparency
-    vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-    vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
-
-    -- Telescope transparency and color matching
-    -- This ensures Telescope windows look consistent with your background
-    vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = "none" })
-    vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = "none" })
-    vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = "none" })
-    vim.api.nvim_set_hl(0, "TelescopePromptBorder", { bg = "none" })
-    vim.api.nvim_set_hl(0, "TelescopeResultsNormal", { bg = "none" })
-    vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { bg = "none" })
-    vim.api.nvim_set_hl(0, "TelescopePreviewNormal", { bg = "none" })
-    vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { bg = "none" })
 end
 
 
@@ -39,5 +23,37 @@ return {
             ColorMyPencils();
         end
     },
+
+    {
+        "rebelot/kanagawa.nvim",
+        config = function ()
+
+            -- Default options:
+            require('kanagawa').setup({
+                compile = false,             -- enable compiling the colorscheme
+                undercurl = true,            -- enable undercurls
+                commentStyle = { italic = true },
+                functionStyle = {},
+                keywordStyle = { italic = true},
+                statementStyle = { bold = true },
+                typeStyle = {},
+                transparent = false,         -- do not set background color
+                dimInactive = false,         -- dim inactive window `:h hl-NormalNC`
+                terminalColors = true,       -- define vim.g.terminal_color_{0,17}
+                colors = {                   -- add/modify theme and palette colors
+                    palette = {},
+                    theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
+                },
+                overrides = function(colors) -- add/modify highlights
+                    return {}
+                end,
+                theme = "wave",              -- Load "wave" theme
+                background = {               -- map the value of 'background' option to a theme
+                    dark = "wave",           -- try "dragon" !
+                    light = "lotus"
+                },
+            })
+        end
+    }
 }
 
