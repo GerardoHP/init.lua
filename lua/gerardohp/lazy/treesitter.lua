@@ -22,6 +22,10 @@ return {
                     "jsdoc",
                     "bash",
                     "go",
+                    "go",
+                    "gomod",
+                    "gowork",
+                    "gosum",
 				},
 
 				-- Install parsers synchronously (only applied to `ensure_installed`)

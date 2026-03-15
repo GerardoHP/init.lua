@@ -36,11 +36,28 @@
                  "vtsls",
                  "tailwindcss",
                  "omnisharp",
+                 "dartls",
+                 "gopls",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
                     require("lspconfig")[server_name].setup {
-                        capabilities = capabilities
+                        capabilities = capabilities,
+                         on_attach = function (client, bufnr)
+                             local opts = { buffer = bufnr, remap = false }
+                             
+                             vim.keymap.set("n", "gd", function () vim.lsp.buf.definition() end, opts)
+                             vim.keymap.set("n", "gd", function () vim.lsp.buf.definition() end, opts)
+                             vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
+                             vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
+                             vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
+                             vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
+                             vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
+                             vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
+                             vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
+                             vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
+                             vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
+                         end
                     }
                 end,
 
@@ -97,7 +114,51 @@
                         filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte", "heex", "omnisharp" },
                     })
                 end,
-            }
+
+                 -- dart configuration
+                 ["dartls"] = function()
+                     require("lspconfig").dartls.setup({
+                         capabilities = capabilities,
+                         -- Aquí puedes añadir configuraciones específicas de Dart
+                     })
+                 end,
+
+                 -- csharp configuration
+                 ["omnisharp"] = function()
+                     local lspconfig = require("lspconfig")
+                     lspconfig.omnisharp.setup({
+                         capabilities = capabilities,
+                         -- Esta función es la que definimos antes con tus atajos (gd, K, etc.)
+                         on_attach = on_attach, 
+                         settings = {
+                             formatting_options = {
+                                 enableEditorConfigSupport = true,
+                                 organizeImports = true,
+                             },
+                             roslyn = {
+                                 enableDecompilationSupport = true,
+                             },
+                         },
+                         -- Esto ayuda a OmniSharp a encontrar el proyecto
+                         root_dir = function(fname)
+                             return lspconfig.util.root_pattern("*.sln", "*.csproj", ".git")(fname)
+                         end,
+                     })
+                 end,
+                 
+                 -- go
+                 ["gopls"] = function()
+                     require("lspconfig").gopls.setup({
+                         capabilities = capabilities,
+                         settings = {
+                             gopls = {
+                                 analyses = { unusedparams = true },
+                                 staticcheck = true,
+                             },
+                         },
+                     })
+                 end,
+             }
         })
 
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
