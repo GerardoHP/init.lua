@@ -14,7 +14,6 @@ return {
                     "lua",
                     "rust",
                     "dart",
-                    "c_sharp",
                     "vimdoc",
                     "typescript",
                     "c",
@@ -26,6 +25,9 @@ return {
                     "gomod",
                     "gowork",
                     "gosum",
+                    -- adding c c_sharp
+                    "c_sharp",
+                    "razor",
 				},
 
 				-- Install parsers synchronously (only applied to `ensure_installed`)

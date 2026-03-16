@@ -12,6 +12,7 @@
         "L3MON4D3/LuaSnip",
         "saadparwaiz1/cmp_luasnip",
         "j-hui/fidget.nvim",
+        "seblyng/roslyn.nvim", -- adding roslyn plugin
     },
 
     config = function()
@@ -28,25 +29,28 @@
             cmp_lsp.default_capabilities())
 
         require("fidget").setup({})
-        require("mason").setup()
+        require("mason").setup({
+             registries = {
+                 "github:mason-org/mason-registry",
+                 "github:Crashdummyy/mason-registry",
+             },
+        })
         require("mason-lspconfig").setup({
             ensure_installed = {
                  "lua_ls",
                  "rust_analyzer",
                  "vtsls",
                  "tailwindcss",
-                 "omnisharp",
                  "dartls",
                  "gopls",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
-                    require("lspconfig")[server_name].setup {
-                        capabilities = capabilities,
+                     require("lspconfig")[server_name].setup {
+                         capabilities = capabilities,
                          on_attach = function (client, bufnr)
                              local opts = { buffer = bufnr, remap = false }
-                             
-                             vim.keymap.set("n", "gd", function () vim.lsp.buf.definition() end, opts)
+
                              vim.keymap.set("n", "gd", function () vim.lsp.buf.definition() end, opts)
                              vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
                              vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
@@ -58,7 +62,10 @@
                              vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
                              vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
                          end
-                    }
+                     }
+                     if server_name ~= "roslyn" then
+                     end
+    
                 end,
 
                 zls = function()
@@ -111,7 +118,7 @@
                     local lspconfig = require("lspconfig")
                     lspconfig.tailwindcss.setup({
                         capabilities = capabilities,
-                        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte", "heex", "omnisharp" },
+                        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte", "heex", },
                     })
                 end,
 
@@ -123,29 +130,6 @@
                      })
                  end,
 
-                 -- csharp configuration
-                 ["omnisharp"] = function()
-                     local lspconfig = require("lspconfig")
-                     lspconfig.omnisharp.setup({
-                         capabilities = capabilities,
-                         -- Esta función es la que definimos antes con tus atajos (gd, K, etc.)
-                         on_attach = on_attach, 
-                         settings = {
-                             formatting_options = {
-                                 enableEditorConfigSupport = true,
-                                 organizeImports = true,
-                             },
-                             roslyn = {
-                                 enableDecompilationSupport = true,
-                             },
-                         },
-                         -- Esto ayuda a OmniSharp a encontrar el proyecto
-                         root_dir = function(fname)
-                             return lspconfig.util.root_pattern("*.sln", "*.csproj", ".git")(fname)
-                         end,
-                     })
-                 end,
-                 
                  -- go
                  ["gopls"] = function()
                      require("lspconfig").gopls.setup({
@@ -158,6 +142,19 @@
                          },
                      })
                  end,
+
+                 -- roslyn configo
+                 require("roslyn").setup({
+                     config = {
+                         on_attach = my_on_attach,
+                         capabilities = capabilities,
+                         settings = {
+                             ["dotnet|projects"] = {
+                                 enableDefaultBinaries = true,
+                             },
+                         },
+                     },
+                 })
              }
         })
 
