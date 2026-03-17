@@ -1,195 +1,58 @@
- return {
+return {
     "neovim/nvim-lspconfig",
     dependencies = {
-        "stevearc/conform.nvim",
         "williamboman/mason.nvim",
         "williamboman/mason-lspconfig.nvim",
         "hrsh7th/cmp-nvim-lsp",
-        "hrsh7th/cmp-buffer",
-        "hrsh7th/cmp-path",
-        "hrsh7th/cmp-cmdline",
-        "hrsh7th/nvim-cmp",
-        "L3MON4D3/LuaSnip",
-        "saadparwaiz1/cmp_luasnip",
-        "j-hui/fidget.nvim",
-        "seblyng/roslyn.nvim", -- adding roslyn plugin
+        "hrsh7th/nvim-cmp", -- Aseguramos que cmp esté presente
+        "seblyng/roslyn.nvim",
     },
 
     config = function()
-        require("conform").setup({
-            formatters_by_ft = {
-            }
-        })
-        local cmp = require('cmp')
-        local cmp_lsp = require("cmp_nvim_lsp")
-        local capabilities = vim.tbl_deep_extend(
-            "force",
-            {},
-            vim.lsp.protocol.make_client_capabilities(),
-            cmp_lsp.default_capabilities())
+        local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-        require("fidget").setup({})
-        require("mason").setup({
-             registries = {
-                 "github:mason-org/mason-registry",
-                 "github:Crashdummyy/mason-registry",
-             },
+        -- Función para otros servidores (Lua, Go, etc.)
+        local on_attach_common = function(client, bufnr)
+            local opts = { buffer = bufnr, remap = false }
+            vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+            vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+        end
+
+        -- MAPEOS AGRESIVOS PARA C#: Funcionarán siempre en archivos .cs
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = "cs",
+            callback = function()
+                local opts = { buffer = true, remap = false }
+                vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+                vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+                vim.keymap.set("n", "<leader>vca", vim.lsp.buf.code_action, opts)
+                vim.keymap.set("n", "<leader>vrr", vim.lsp.buf.references, opts)
+                vim.keymap.set("n", "<leader>vrn", vim.lsp.buf.rename, opts)
+            end,
         })
+
+        require("mason").setup()
         require("mason-lspconfig").setup({
-            ensure_installed = {
-                 "lua_ls",
-                 "rust_analyzer",
-                 "vtsls",
-                 "tailwindcss",
-                 "dartls",
-                 "gopls",
-            },
+            -- IMPORTANTE: "roslyn" NO debe estar aquí
+            ensure_installed = { "lua_ls", "rust_analyzer", "gopls" },
             handlers = {
-                function(server_name) -- default handler (optional)
-                     require("lspconfig")[server_name].setup {
-                         capabilities = capabilities,
-                         on_attach = function (client, bufnr)
-                             local opts = { buffer = bufnr, remap = false }
-
-                             vim.keymap.set("n", "gd", function () vim.lsp.buf.definition() end, opts)
-                             vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-                             vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-                             vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-                             vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
-                             vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
-                             vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-                             vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-                             vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-                             vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-                         end
-                     }
-                     if server_name ~= "roslyn" then
-                     end
-    
-                end,
-
-                zls = function()
-                    local lspconfig = require("lspconfig")
-                    lspconfig.zls.setup({
-                        root_dir = lspconfig.util.root_pattern(".git", "build.zig", "zls.json"),
-                        settings = {
-                            zls = {
-                                enable_inlay_hints = true,
-                                enable_snippets = true,
-                                warn_style = true,
-                            },
-                        },
-                    })
-                    vim.g.zig_fmt_parse_errors = 0
-                    vim.g.zig_fmt_autosave = 0
-
-                end,
-                ["lua_ls"] = function()
-                    local lspconfig = require("lspconfig")
-
-                    lspconfig.lua_ls.setup {
+                function(server_name)
+                    if server_name == "roslyn" or server_name == "omnisharp" then return end
+                    require("lspconfig")[server_name].setup({
                         capabilities = capabilities,
-                        settings = {
-                            Lua = {
-                                runtime = {
-                                    version = 'LuaJIT',
-                                },
-                                diagnostics = {
-                                    globals = { 'vim' },
-                                },
-                                workspace = {
-                                    library = vim.api.nvim_get_runtime_file("", true),
-                                    checkThirdParty = false,
-                                },
-                                format = {
-                                    enable = true,
-                                    -- Put format options here
-                                    -- NOTE: the value should be STRING!!
-                                    defaultConfig = {
-                                        indent_style = "space",
-                                        indent_size = "2",
-                                    }
-                                },
-                            }
-                        }
-                    }
-                end,
-                ["tailwindcss"] = function()
-                    local lspconfig = require("lspconfig")
-                    lspconfig.tailwindcss.setup({
-                        capabilities = capabilities,
-                        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte", "heex", },
+                        on_attach = on_attach_common,
                     })
-                end,
-
-                 -- dart configuration
-                 ["dartls"] = function()
-                     require("lspconfig").dartls.setup({
-                         capabilities = capabilities,
-                         -- Aquí puedes añadir configuraciones específicas de Dart
-                     })
-                 end,
-
-                 -- go
-                 ["gopls"] = function()
-                     require("lspconfig").gopls.setup({
-                         capabilities = capabilities,
-                         settings = {
-                             gopls = {
-                                 analyses = { unusedparams = true },
-                                 staticcheck = true,
-                             },
-                         },
-                     })
-                 end,
-
-                 -- roslyn configo
-                 require("roslyn").setup({
-                     config = {
-                         on_attach = my_on_attach,
-                         capabilities = capabilities,
-                         settings = {
-                             ["dotnet|projects"] = {
-                                 enableDefaultBinaries = true,
-                             },
-                         },
-                     },
-                 })
-             }
-        })
-
-        local cmp_select = { behavior = cmp.SelectBehavior.Select }
-
-        cmp.setup({
-            snippet = {
-                expand = function(args)
-                    require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
                 end,
             },
-            mapping = cmp.mapping.preset.insert({
-                ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
-                ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-                ['<CR>'] = cmp.mapping.confirm({ select = true }),
-                ["<C-Space>"] = cmp.mapping.complete(),
-            }),
-            sources = cmp.config.sources({
-                { name = "copilot", group_index = 2 },
-                { name = 'nvim_lsp' },
-                { name = 'luasnip' }, -- For luasnip users.
-            }, {
-                { name = 'buffer' },
-            })
         })
 
-        vim.diagnostic.config({
-            -- update_in_insert = true,
-            float = {
-                focusable = false,
-                style = "minimal",
-                border = "rounded",
-                source = "always",
-                header = "",
-                prefix = "",
+        require("roslyn").setup({
+            config = {
+                capabilities = capabilities,
+                -- No dependemos del on_attach para los mapeos de C# ahora
+                settings = {
+                    ["dotnet|projects"] = { enableDefaultBinaries = true },
+                },
             },
         })
     end
